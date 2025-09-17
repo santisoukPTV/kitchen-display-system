@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Kitchen Display System</title>
     
-    <!-- PWA Meta Tags -->
+    <!-- PWA Meta Tags for iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kitchen Display">
@@ -16,16 +16,18 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts - Inter and Thai fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Phetsarath OT font for Lao text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Phetsarath+OT:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Mobile-first design */
+        /* iOS Safari specific fixes */
         * {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
@@ -39,19 +41,19 @@
             font-family: 'Phetsarath OT', 'Inter', 'Sarabun', 'Kanit', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #343a40;
             color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-            /* Prevent zoom and bounce on iOS */
+            /* Prevent zoom on double tap */
             touch-action: manipulation;
+            /* Prevent bounce scrolling on iOS */
             overscroll-behavior: none;
-            /* Full height for mobile */
+            /* Fix for iOS Safari viewport height */
             height: 100vh;
             height: -webkit-fill-available;
         }
         
         .kds-header {
             background-color: #212529;
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.5rem;
+            /* Fix for iOS Safari header */
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -59,36 +61,36 @@
         
         .kds-header h1 {
             margin: 0;
-            font-size: 1.2rem;
+            font-size: 1.75rem;
         }
         
         .kitchen-board {
             display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            height: calc(100vh - 60px);
-            height: calc(100dvh - 60px);
-            overflow-y: auto;
+            gap: 1rem;
+            padding: 1rem;
+            /* Use dynamic viewport height for iOS */
+            height: calc(100vh - 70px);
+            height: calc(100dvh - 70px);
+            overflow-x: auto;
+            /* Enable momentum scrolling on iOS */
             -webkit-overflow-scrolling: touch;
         }
         
         .status-column {
             flex: 1;
-            min-height: 200px;
+            min-width: 280px;
             background-color: #f8f9fa;
             border-radius: 0.5rem;
             display: flex;
             flex-direction: column;
-            margin-bottom: 0.5rem;
         }
         
         .column-header {
-            padding: 0.75rem;
+            padding: 1rem;
             border-radius: 0.5rem 0.5rem 0 0;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 0.5rem;
             font-weight: 600;
             font-size: 1rem;
         }
@@ -115,11 +117,12 @@
         
         .column-content {
             flex: 1;
-            padding: 0.75rem;
+            padding: 1rem;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            /* Enable momentum scrolling on iOS */
             -webkit-overflow-scrolling: touch;
         }
         
@@ -131,11 +134,27 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .order-ticket.new-order {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .order-ticket.in-progress {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .order-ticket.ready {
+            border-left: 4px solid #0dcaf0;
+        }
+        
+        .order-ticket.completed {
+            border-left: 4px solid #198754;
         }
         
         .ticket-header {
-            padding: 0.5rem 0.75rem;
+            padding: 0.75rem 1rem;
             border-bottom: 1px solid #dee2e6;
             display: flex;
             justify-content: space-between;
@@ -144,34 +163,40 @@
         
         .ticket-header .table-name {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.25rem;
         }
         
         .ticket-header .order-time {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: #6c757d;
         }
         
         .ticket-body {
-            padding: 0.75rem;
+            padding: 1rem;
             flex-grow: 1;
         }
         
         .ticket-item {
             display: flex;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
         
         .item-qty {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-right: 0.75rem;
-            min-width: 30px;
+            margin-right: 1rem;
+            min-width: 40px;
         }
         
         .item-details .item-name {
             font-weight: 600;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+        }
+        
+        .item-details .item-modifiers {
+            font-size: 0.9rem;
+            color: #495057;
+            padding-left: 0.5rem;
         }
         
         .special-requests {
@@ -180,14 +205,30 @@
             border-radius: 0.375rem;
             padding: 0.5rem;
             margin-top: 0.5rem;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
         
+        .special-requests .request-category {
+            font-weight: 600;
+            color: #721c24;
+            font-size: 0.9rem;
+        }
+        
+        .special-requests .request-item {
+            color: #721c24;
+            font-size: 0.9rem;
+        }
+        
+        .special-requests .star-icon {
+            color: #dc3545;
+            font-size: 1rem;
+        }
+        
         .ticket-footer {
-            padding: 0.5rem 0.75rem;
+            padding: 0.75rem;
             border-top: 1px solid #dee2e6;
             background-color: #f8f9fa;
             display: flex;
@@ -196,13 +237,30 @@
         
         .ticket-footer .btn {
             flex-grow: 1;
+            /* Larger touch targets for iOS */
             min-height: 44px;
-            font-size: 0.9rem;
-            padding: 0.5rem;
+            font-size: 1rem;
+            padding: 0.75rem;
         }
         
-        .btn:active {
-            transform: scale(0.98);
+        .btn-cooking {
+            animation: pulse-warning 1.5s infinite;
+        }
+        
+        @keyframes pulse-warning {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .order-ticket.new-order {
+            border-left: 5px solid #ffc107;
+            animation: new-order-flash 2s ease-in-out;
+        }
+        
+        @keyframes new-order-flash {
+            0%, 100% { background-color: #ffffff; }
+            25%, 75% { background-color: #fff3cd; }
         }
         
         #no-orders-message {
@@ -211,7 +269,18 @@
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+        }
+        
+        /* iOS Safari specific button fixes */
+        .btn {
+            -webkit-appearance: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
         }
         
         /* Audio permission button */
@@ -226,32 +295,37 @@
             border: none;
             padding: 1rem 2rem;
             border-radius: 0.5rem;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         
+        /* Hide audio permission button after click */
         .audio-enabled #audio-permission-btn {
             display: none;
         }
         
-        /* Responsive adjustments */
-        @media (min-width: 768px) {
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
             .kitchen-board {
-                flex-direction: row;
-                flex-wrap: wrap;
+                flex-direction: column;
+                height: auto;
+                min-height: calc(100vh - 70px);
+                min-height: calc(100dvh - 70px);
             }
             
             .status-column {
-                flex: 1;
-                min-width: 300px;
-                max-width: 50%;
+                min-width: 100%;
+                margin-bottom: 1rem;
             }
-        }
-        
-        @media (min-width: 1200px) {
-            .status-column {
-                max-width: 25%;
+            
+            .kds-header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .ticket-footer .btn {
+                font-size: 0.9rem;
+                padding: 0.5rem;
             }
         }
     </style>
@@ -264,9 +338,9 @@
 
     <header class="kds-header d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center">
-            <div class="logo-container me-2" style="
-                width: 40px; 
-                height: 40px; 
+            <div class="logo-container me-3" style="
+                width: 50px; 
+                height: 50px; 
                 background: linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #CD853F 100%);
                 border-radius: 50%;
                 display: flex;
@@ -276,20 +350,20 @@
             ">
                 <span style="
                     color: white;
-                    font-size: 18px;
+                    font-size: 24px;
                     font-weight: bold;
                     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
                 ">M</span>
             </div>
             <div>
-                <h1 class="mb-0" style="color: #8B4513; font-size: 1.1rem; font-weight: bold;">MAJEDO COFFEE & BISTRO</h1>
-                <p class="mb-0" style="color: #D2691E; font-size: 0.8rem;">Kitchen Display System</p>
+                <h1 class="mb-0" style="color: #8B4513; font-size: 1.6rem; font-weight: bold;">MAJEDO COFFEE & BISTRO</h1>
+                <p class="mb-0" style="color: #D2691E; font-size: 0.9rem;">Kitchen Display System</p>
             </div>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-3">
             <span id="connection-status" class="badge bg-secondary">Connecting...</span>
-            <button id="test-connection-btn" class="btn btn-outline-light btn-sm">Test</button>
-            <span id="currentTime" class="fs-6"></span>
+            <button id="test-connection-btn" class="btn btn-outline-light btn-sm">Test Connection</button>
+            <span id="currentTime" class="fs-5"></span>
         </div>
     </header>
 
@@ -298,10 +372,8 @@
             <!-- New Orders Column -->
             <div class="status-column" id="new-orders-column">
                 <div class="column-header new-orders">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-receipt me-2"></i>
-                        <span>ອໍເດີ້ໃໝ່ (<span id="new-count">0</span>)</span>
-                    </div>
+                    <i class="bi bi-receipt"></i>
+                    <span>ອໍເດີ້ໃໝ່ (<span id="new-count">0</span>)</span>
                 </div>
                 <div class="column-content" id="new-orders-content">
                     <!-- New order cards will be added here -->
@@ -311,10 +383,8 @@
             <!-- In Progress Column -->
             <div class="status-column" id="in-progress-column">
                 <div class="column-header in-progress">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-egg-fried me-2"></i>
-                        <span>ກຳລັງເຮັດ (<span id="in-progress-count">0</span>)</span>
-                    </div>
+                    <i class="bi bi-egg-fried"></i>
+                    <span>ກຳລັງເຮັດ (<span id="in-progress-count">0</span>)</span>
                 </div>
                 <div class="column-content" id="in-progress-content">
                     <!-- In progress order cards will be added here -->
@@ -324,10 +394,9 @@
             <!-- Ready to Serve Column -->
             <div class="status-column" id="ready-column">
                 <div class="column-header ready">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-cloche me-2"></i>
-                        <span>ພ້ອມເສີບ (<span id="ready-count">0</span>)</span>
-                    </div>
+                    <i class="bi bi-cloche"></i>
+                    <span>ພ້ອມເສີບ (<span id="ready-count">0</span>)</span>
+                    <i class="bi bi-speaker" id="ready-speaker"></i>
                 </div>
                 <div class="column-content" id="ready-content">
                     <!-- Ready order cards will be added here -->
@@ -337,11 +406,9 @@
             <!-- Completed Column -->
             <div class="status-column" id="completed-column">
                 <div class="column-header completed">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-check-circle me-2"></i>
-                        <span>ສຳເລັດ (<span id="completed-count">0</span>)</span>
-                    </div>
-                    <button class="btn btn-sm btn-light" id="clear-all-btn">ລ້າງ</button>
+                    <i class="bi bi-check-circle"></i>
+                    <span>ສຳເລັດ (<span id="completed-count">0</span>)</span>
+                    <button class="btn btn-sm btn-success" id="clear-all-btn">ລ້າງທັງໝົດ</button>
                 </div>
                 <div class="column-content" id="completed-content">
                     <!-- Completed order cards will be added here -->
@@ -350,13 +417,19 @@
         </div>
         
         <div id="no-orders-message">
-            <i class="bi bi-cup-hot" style="font-size: 3rem;"></i>
+            <i class="bi bi-cup-hot" style="font-size: 5rem;"></i>
             <p class="mt-3">ไม่มีออเดอร์ที่ต้องทำ</p>
         </div>
     </main>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs with fallback for older Safari versions -->
     <script type="module">
+        // Check if ES6 modules are supported
+        if (!window.Symbol) {
+            // Fallback for older Safari versions
+            window.location.href = 'kitchen-display-legacy.html';
+        }
+        
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, update, serverTimestamp, get, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
@@ -380,6 +453,7 @@
         // Enable audio function for iOS Safari
         window.enableAudio = function() {
             try {
+                // Create audio context on user interaction
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 isAudioEnabled = true;
                 document.body.classList.add('audio-enabled');
@@ -448,8 +522,8 @@
         function startAlarm() {
             if (!isAlarmPlaying && isAudioEnabled) {
                 isAlarmPlaying = true;
-                playAlarm();
-                alarmInterval = setInterval(playAlarm, 2500);
+                playAlarm(); // Play immediately
+                alarmInterval = setInterval(playAlarm, 2500); // Play every 2.5 seconds
             }
         }
         
@@ -468,6 +542,7 @@
         const ordersRef = ref(db, 'orders');
         
         console.log('Setting up Firebase listener for orders...');
+        console.log('Database reference:', ordersRef);
 
         onValue(ordersRef, (snapshot) => {
             console.log('🔥 Firebase listener triggered!');
@@ -476,6 +551,9 @@
             // Update connection status
             document.getElementById('connection-status').textContent = 'Connected';
             document.getElementById('connection-status').className = 'badge bg-success';
+            
+            // Debug logging
+            console.log('Kitchen display received orders:', orders);
             
             // Clear all columns
             newOrdersContent.innerHTML = '';
@@ -503,26 +581,39 @@
             // Process all orders and categorize by status
             Object.entries(orders).forEach(([orderId, order]) => {
                 const status = order.status;
+                console.log(`Processing order ${orderId}:`, {status, source: order.source, tableName: order.tableName});
                 
                 if (status === 'new') {
+                    // New orders that haven't started cooking
+                    console.log(`Adding order ${orderId} to new-orders column`);
                     renderOrderTicket(order, orderId, 'new-orders');
                     newOrdersCount++;
                     hasNewOrders = true;
                 } else if (status === 'preparing') {
                     if (!order.cookingStarted) {
+                        // Orders that are preparing but haven't started cooking yet
+                        console.log(`Adding order ${orderId} to new-orders column (preparing without cookingStarted)`);
                         renderOrderTicket(order, orderId, 'new-orders');
                         newOrdersCount++;
                         hasNewOrders = true;
                     } else {
+                        // Orders currently being cooked
+                        console.log(`Adding order ${orderId} to in-progress column`);
                         renderOrderTicket(order, orderId, 'in-progress');
                         inProgressCount++;
                     }
                 } else if (status === 'served') {
+                    // Orders ready to serve
+                    console.log(`Adding order ${orderId} to ready column`);
                     renderOrderTicket(order, orderId, 'ready');
                     readyCount++;
                 } else if (status === 'completed' || status === 'paid') {
+                    // Completed orders
+                    console.log(`Adding order ${orderId} to completed column`);
                     renderOrderTicket(order, orderId, 'completed');
                     completedCount++;
+                } else {
+                    console.log(`Order ${orderId} with status '${status}' not handled`);
                 }
             });
             
@@ -538,6 +629,7 @@
             console.error('Firebase listener error:', error);
             document.getElementById('connection-status').textContent = 'Error';
             document.getElementById('connection-status').className = 'badge bg-danger';
+            alert('Firebase connection error. Check console for details.');
         });
         
         function updateCounts(newOrders, inProgress, ready, completed) {
@@ -611,7 +703,7 @@
 
             ticket.innerHTML = `
                 <div class="ticket-header">
-                    <span class="table-name"><i class="bi bi-grid-3x3-gap-fill me-1"></i>${order.tableName || 'Take Away'}</span>
+                    <span class="table-name"><i class="bi bi-grid-3x3-gap-fill me-2"></i>${order.tableName || 'Take Away'}</span>
                     <span class="order-time">${orderTime}</span>
                 </div>
                 <div class="ticket-body">
@@ -709,23 +801,26 @@
         // Clear all completed orders from display only (not from database)
         clearAllBtn.addEventListener('click', () => {
             try {
+                // Clear only the completed column visually
                 completedContent.innerHTML = '';
                 completedCount.textContent = '0';
                 
+                // Update the display to hide completed orders
                 const allTickets = document.querySelectorAll('.order-ticket.completed');
                 allTickets.forEach(ticket => {
                     ticket.style.display = 'none';
                 });
                 
-                console.log('Completed orders cleared from kitchen display');
+                console.log('Completed orders cleared from kitchen display (data preserved in POS)');
                 
+                // Show a brief confirmation message
                 const originalText = clearAllBtn.textContent;
                 clearAllBtn.textContent = 'ລ້າງແລ້ວ!';
                 clearAllBtn.className = 'btn btn-sm btn-outline-success';
                 
                 setTimeout(() => {
                     clearAllBtn.textContent = originalText;
-                    clearAllBtn.className = 'btn btn-sm btn-light';
+                    clearAllBtn.className = 'btn btn-sm btn-success';
                 }, 1500);
                 
             } catch (error) {
@@ -743,13 +838,40 @@
                 console.log('Current orders in database:', orders);
                 
                 if (orders && Object.keys(orders).length > 0) {
-                    alert(`Found ${Object.keys(orders).length} orders in database.`);
+                    alert(`Found ${Object.keys(orders).length} orders in database. Check console for details.`);
                 } else {
-                    alert('No orders found in database.');
+                    alert('No orders found in database. Creating a test order...');
+                    
+                    // Create a test order
+                    const testOrder = {
+                        tableName: 'Test Table 99',
+                        items: [
+                            {
+                                menuItemId: 'test-item',
+                                name: 'Test Item',
+                                price: 100,
+                                quantity: 1
+                            }
+                        ],
+                        totalAmount: 100,
+                        specialRequests: {
+                            general: ['This is a test order']
+                        },
+                        status: 'new',
+                        createdAt: new Date().toISOString(),
+                        orderType: 'dine-in',
+                        customerName: 'Test Customer',
+                        source: 'test'
+                    };
+                    
+                    const testOrderRef = push(ref(db, 'orders'));
+                    await set(testOrderRef, testOrder);
+                    console.log('Test order created:', testOrderRef.key);
+                    alert('Test order created! Check if it appears in the kitchen display.');
                 }
             } catch (error) {
                 console.error('Test connection failed:', error);
-                alert('Connection test failed.');
+                alert('Connection test failed. Check console for details.');
             }
         });
 
