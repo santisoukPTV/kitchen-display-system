@@ -263,6 +263,11 @@
             25%, 75% { background-color: #fff3cd; }
         }
         
+        @keyframes flash-red {
+            0%, 100% { background-color: #dc3545; }
+            50% { background-color: #ff6b7a; }
+        }
+        
         #no-orders-message {
             position: absolute;
             top: 50%;
@@ -449,19 +454,61 @@
         // Audio context for iOS Safari compatibility
         let audioContext = null;
         let isAudioEnabled = false;
+        let audioInitialized = false;
 
         // Enable audio function for iOS Safari
         window.enableAudio = function() {
             try {
                 // Create audio context on user interaction
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                isAudioEnabled = true;
-                document.body.classList.add('audio-enabled');
-                console.log('Audio enabled for iOS Safari');
+                audioInitialized = true;
+                
+                // Resume audio context if it's suspended (iOS requirement)
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        console.log('Audio context resumed');
+                        isAudioEnabled = true;
+                        document.body.classList.add('audio-enabled');
+                        console.log('Audio enabled for iOS Safari');
+                        
+                        // Test audio immediately
+                        playAlarm();
+                    });
+                } else {
+                    isAudioEnabled = true;
+                    document.body.classList.add('audio-enabled');
+                    console.log('Audio enabled for iOS Safari');
+                    
+                    // Test audio immediately
+                    playAlarm();
+                }
             } catch (e) {
                 console.log('Audio not supported:', e);
             }
         };
+        
+        // Try to initialize audio on page load (will be suspended on iOS)
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioInitialized = true;
+                console.log('Audio context created (may be suspended on iOS)');
+            } catch (e) {
+                console.log('Audio not supported:', e);
+            }
+        }
+        
+        // Initialize audio on page load
+        initAudio();
+        
+        // Visual notification for when audio is not available
+        function showVisualNotification() {
+            // Flash the new orders column
+            const newOrdersColumn = document.getElementById('new-orders-column');
+            if (newOrdersColumn) {
+                newOrdersColumn.style.animation = 'flash-red 0.5s ease-in-out 3';
+            }
+        }
 
         // Column elements
         const newOrdersContent = document.getElementById('new-orders-content');
@@ -490,20 +537,35 @@
             }
             
             try {
+                // Check if audio context is suspended and resume it
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        console.log('Audio context resumed, retrying sound');
+                        createBeepSound();
+                    });
+                    return;
+                }
+                
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
                 
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
+                // Create a more noticeable beep pattern
                 oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
                 oscillator.type = 'square';
                 
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
                 
                 oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
+                oscillator.stop(audioContext.currentTime + 0.4);
+                
+                console.log('Beep sound played successfully');
             } catch (e) {
                 console.log('Beep sound failed:', e);
             }
@@ -520,10 +582,25 @@
         
         // Function to start alarm
         function startAlarm() {
-            if (!isAlarmPlaying && isAudioEnabled) {
+            if (!isAlarmPlaying) {
                 isAlarmPlaying = true;
-                playAlarm(); // Play immediately
-                alarmInterval = setInterval(playAlarm, 2500); // Play every 2.5 seconds
+                if (isAudioEnabled && audioContext) {
+                    playAlarm(); // Play immediately
+                    alarmInterval = setInterval(playAlarm, 2500); // Play every 2.5 seconds
+                } else {
+                    // If audio not enabled, show visual notification
+                    console.log('Audio not enabled, showing visual notification');
+                    showVisualNotification();
+                    
+                    // Also try to enable audio automatically if context exists
+                    if (audioContext && audioContext.state === 'suspended') {
+                        audioContext.resume().then(() => {
+                            isAudioEnabled = true;
+                            document.body.classList.add('audio-enabled');
+                            console.log('Audio auto-enabled');
+                        });
+                    }
+                }
             }
         }
         
